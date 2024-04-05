@@ -3,6 +3,30 @@ using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+
+// States for you to try
+public class States{
+
+    public string name  { get; set; }
+    public int roomNumber  { get; set; }
+    public string enter { get; set; }
+    public string exit { get; set; }
+
+    public States(string Name,int RoomNumber, string Enter, string Exit){
+        name = Name;
+        roomNumber = RoomNumber;
+        enter = Enter;
+        exit = Exit;
+    }
+    public void displayProperty(){
+        Console.WriteLine($"Name: {name}");
+        Console.WriteLine($"Room Number: {roomNumber}");
+        Console.WriteLine($"Enterance Day: {enter}");
+        Console.WriteLine($"Exit Day: {exit}\n");
+    }
+
+}
+
 public class RoomData
 {
     [JsonPropertyName("Room")]
@@ -109,11 +133,20 @@ public class ReservationHandler
 class Program
 {
     static void Main(string[] args)
-    {
+    {   
+    
+        
+
         string jsonFilePath = "Data.json";
 
         try
         {
+            States state1 = new States("mert", 1, "10/10/2024", "15/10/2024");
+            States state2 = new States("sila", 2, "10/9/2024", "15/9/2024");
+            States state3 = new States("zeynep", 3, "10/8/2024", "15/8/2024");
+            States state4 = new States("tuna", 4, "10/7/2024", "15/7/2024");  
+            States selectedState = null;
+
             string jsonString = File.ReadAllText(jsonFilePath);
 
             var options = new JsonSerializerOptions
@@ -139,32 +172,46 @@ class Program
                 {
                     case 1:
 
-                        Console.WriteLine("\nAll the Rooms:");
-                        for (int i = 0; i < roomData.Rooms.Length; i++)
+                        Console.WriteLine("Select state 1:");
+                        state1.displayProperty();
+                        Console.WriteLine("Select state 2:");
+                        state2.displayProperty();
+                        Console.WriteLine("Select state 3:");
+                        state3.displayProperty();
+                        Console.WriteLine("Select state 4:");
+                        state4.displayProperty();
+
+                        int selection2 = int.Parse(Console.ReadLine());
+
+                        switch (selection2)
                         {
-                            Console.WriteLine($"{i + 1}. {roomData.Rooms[i].RoomName}");
+                            case 1:
+                                selectedState = state1;
+                                break;
+                            case 2:
+                                selectedState = state2;
+                                break;
+                            case 3:
+                                selectedState = state3;
+                                break;
+                            case 4:
+                                selectedState = state4;
+                                break;
+                            default:
+                                Console.WriteLine("Invalid input !!");
+                                break;
                         }
-
-                        Console.Write("Enter reserver name: ");
-                        string reserverName = Console.ReadLine();
-
-                        Console.Write("Select room (enter room number): ");
-                        int roomIndex = int.Parse(Console.ReadLine()) - 1;
-
-                        if (roomIndex < 0 || roomIndex >= roomData.Rooms.Length)
-                        {
-                            Console.WriteLine("Invalid room selection.");
-                            break;
-                        }
-
-                        Console.Write("Enter reservation date (DD/MM/YYYY): ");
-                        DateTime date = DateTime.Parse(Console.ReadLine());
-
-                        Console.Write("Enter exit day (DD/MM/YYYY): ");
-                        DateTime time = DateTime.Parse(Console.ReadLine());
-
                         
 
+                        string reserverName = selectedState.name;
+
+                        int roomIndex = selectedState.roomNumber - 1;
+
+                        DateTime date = DateTime.Parse(selectedState.enter);
+
+                        DateTime time = DateTime.Parse(selectedState.exit);
+
+        
                         Reservation newReservation = new Reservation
                         {
                             Date = date,
