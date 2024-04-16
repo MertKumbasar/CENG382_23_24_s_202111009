@@ -1,28 +1,31 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-
 // States for you to try
-public class States{
+public class States
+{
+    public string name { get; set; }
+    public string roomNumber { get; set; }
+    public string enterDay { get; set; }
+    public string enterHour { get; set; }
 
-    public string name  { get; set; }
-    public int roomNumber  { get; set; }
-    public string enter { get; set; }
-    public string exit { get; set; }
-
-    public States(string Name,int RoomNumber, string Enter, string Exit){
+    public States(string Name, string RoomNumber, string Enter, string Exit)
+    {
         name = Name;
         roomNumber = RoomNumber;
-        enter = Enter;
-        exit = Exit;
+        enterDay = Enter;
+        enterHour = Exit;
     }
-    public void displayProperty(){
+    public void displayProperty()
+    {
         Console.WriteLine($"Name: {name}");
         Console.WriteLine($"Room Number: {roomNumber}");
-        Console.WriteLine($"Enterance Day: {enter}");
-        Console.WriteLine($"Exit Day: {exit}\n");
+        Console.WriteLine($"Enterance Day: {enterDay}");
+        Console.WriteLine($"Exit Day: {enterHour}\n");
     }
 
 }
@@ -48,83 +51,82 @@ public class Room
 public class Reservation
 {
     public Room Room { get; set; }
-    public DateTime Date { get; set; }
+    public string Day { get; set; }
     public DateTime Time { get; set; }
     public string ReserverName { get; set; }
 }
 
-
 public class ReservationHandler
 {
+    private Dictionary<string, Dictionary<Room, List<(DateTime, string)>>> weeklyReservations;
+    private TimeSpan breakTime = TimeSpan.FromMinutes(40);
 
-    private Reservation[,] reservations;
-    private RoomData roomData;
-
-    public ReservationHandler(int days, int numberOfRooms, RoomData roomData_sent)
+    public ReservationHandler(RoomData roomData)
     {
-        reservations = new Reservation[numberOfRooms, days];
-        roomData = roomData_sent;
+        weeklyReservations = new Dictionary<string, Dictionary<Room, List<(DateTime, string)>>>();
+
+        foreach (DayOfWeek day in Enum.GetValues(typeof(DayOfWeek)))
+        {
+            weeklyReservations[day.ToString()] = new Dictionary<Room, List<(DateTime, string)>>();
+        }
+
+        foreach (Room room in roomData.Rooms)
+        {
+            for (int i = 0; i < 7; i++)
+            {
+                DayOfWeek day = (DayOfWeek)(((int)DayOfWeek.Monday + i) % 7);
+                weeklyReservations[day.ToString()][room] = new List<(DateTime, string)>();
+            }
+        }
     }
 
-    public void AddReservation(Reservation reservation)
+    public void AddReservation(string day, string roomNumber, string reserverName, DateTime enterTime)
     {
+        Room room = Array.Find(weeklyReservations[day].Keys.ToArray(), r => r.RoomId == roomNumber);
+        List<(DateTime, string)> reservations = weeklyReservations[day][room];
 
-        int startIndex = reservation.Date.Day - 1;
-        int numberOfDays = reservation.Time.Day - startIndex;
-        int roomIndex = int.Parse(reservation.Room.RoomId) - 1;
+        DateTime endTime = enterTime.AddMinutes(40); 
 
-        if (startIndex < 0 || startIndex + numberOfDays > reservations.GetLength(1))
+        if (reservations.Any(reservation => enterTime < reservation.Item1.Add(breakTime) && endTime > reservation.Item1))
         {
-            Console.WriteLine("Reservation exceeds the boundaries of the month.");
+            Console.WriteLine("There is a reservation conflict. Please choose another time.");
             return;
         }
 
-        for (int i = startIndex; i < startIndex + numberOfDays; i++)
-        {
-            if (reservations[roomIndex, i] != null)
-            {
-                Console.WriteLine($"Reservation conflict on {reservation.Date.AddDays(i - startIndex):MM/dd/yyyy}");
-                return;
-            }
-        }
-
-        for (int i = startIndex; i < startIndex + numberOfDays; i++)
-        {
-            reservations[roomIndex, i] = reservation;
-        }
-
-        Console.WriteLine($"Reservation added from {reservation.Date:MM/dd/yyyy} to {reservation.Time:MM/dd/yyyy} for room {reservation.Room.RoomName}.");
+        reservations.Add((enterTime, reserverName));
+        Console.WriteLine($"Reservation added for room {roomNumber} on {day} at {enterTime:hh:mm tt}.");
     }
 
-    public void DeleteReservation(string reserverName)
-    {
-        for (int i = 0; i < reservations.GetLength(0); i++)
-        {
-            for (int j = 0; j < reservations.GetLength(1); j++)
-            {
-                if (reservations[i, j]?.ReserverName == reserverName)
-                {
-                    reservations[i, j] = null;
-                }
-            }
-        }
-
-        Console.WriteLine($"\nAll reservations for guest {reserverName} deleted.\n");
-    }
-
-    public void DisplayWeeklySchedule()
+    public void PrintWeeklySchedule()
     {
         Console.WriteLine("Weekly Schedule:");
-        for (int i = 0; i < reservations.GetLength(0); i++)
+
+        
+        for (int i = 0; i < 7; i++)
         {
-            Console.WriteLine($"Room {i + 1} - {roomData.Rooms[i].RoomName}:");
-            for (int j = 0; j < reservations.GetLength(1); j++)
+            DayOfWeek dayOfWeek = (DayOfWeek)(((int)DayOfWeek.Monday + i) % 7);
+            string dayOfWeekString = dayOfWeek.ToString();
+
+            Console.WriteLine($"Day: {dayOfWeekString}");
+
+            foreach (var roomKvp in weeklyReservations[dayOfWeekString])
             {
-                if (reservations[i, j] != null && reservations[i, j] != reservations[i, j + 1])
+                Room room = roomKvp.Key;
+                List<(DateTime, string)> reservations = roomKvp.Value;
+
+                if (reservations.Count == 0)
                 {
-                    Console.WriteLine($"  {reservations[i, j].Date:dd/MM/yyyy} to {reservations[i, j].Time:dd/MM/yyyy}: {reservations[i, j].ReserverName}");
+                    continue;
+                }
+
+                Console.WriteLine($"Room {room.RoomId} ({room.RoomName}):");
+
+                foreach ((DateTime time, string reserverName) in reservations)
+                {
+                    Console.WriteLine($"  {time:hh:mm tt} - {reserverName}");
                 }
             }
+
             Console.WriteLine();
         }
     }
@@ -133,18 +135,15 @@ public class ReservationHandler
 class Program
 {
     static void Main(string[] args)
-    {   
-    
-        
-
+    {
         string jsonFilePath = "Data.json";
 
         try
         {
-            States state1 = new States("mert", 1, "10/10/2024", "15/10/2024");
-            States state2 = new States("sila", 2, "10/9/2024", "15/9/2024");
-            States state3 = new States("zeynep", 3, "10/8/2024", "15/8/2024");
-            States state4 = new States("tuna", 4, "10/7/2024", "15/7/2024");  
+            States state1 = new States("Mert", "001", "Monday", "11:00");
+            States state2 = new States("Sila", "001", "Monday", "11:20");
+            States state3 = new States("Zeynep", "002", "Monday", "11:20");
+            States state4 = new States("Tuna", "003", "Friday", "11:00");
             States selectedState = null;
 
             string jsonString = File.ReadAllText(jsonFilePath);
@@ -156,7 +155,7 @@ class Program
 
             var roomData = JsonSerializer.Deserialize<RoomData>(jsonString, options);
 
-            ReservationHandler handler = new ReservationHandler(28, roomData.Rooms.Length, roomData);
+            ReservationHandler handler = new ReservationHandler(roomData);
 
             bool programOn = true;
             while (programOn)
@@ -201,38 +200,23 @@ class Program
                                 Console.WriteLine("Invalid input !!");
                                 break;
                         }
-                        
+
 
                         string reserverName = selectedState.name;
+                        string roomNumber = selectedState.roomNumber;
+                        string day = selectedState.enterDay;
+                        DateTime time = DateTime.Parse(selectedState.enterHour);
 
-                        int roomIndex = selectedState.roomNumber - 1;
-
-                        DateTime date = DateTime.Parse(selectedState.enter);
-
-                        DateTime time = DateTime.Parse(selectedState.exit);
-
-        
-                        Reservation newReservation = new Reservation
-                        {
-                            Date = date,
-                            Time = time,
-                            ReserverName = reserverName,
-                            Room = roomData.Rooms[roomIndex]
-                        };
-
-                        handler.AddReservation(newReservation);
-
+                        handler.AddReservation(day, roomNumber, reserverName, time);
                         break;
 
                     case 2:
                         Console.Write("\nEnter guest name to delete all reservations: ");
                         string reserverNameToDelete = Console.ReadLine();
-                        handler.DeleteReservation(reserverNameToDelete);
-                        
                         break;
 
                     case 3:
-                        handler.DisplayWeeklySchedule();
+                        handler.PrintWeeklySchedule();
                         break;
 
                     case 4:
@@ -240,8 +224,8 @@ class Program
                         Console.WriteLine("Thanks for using.");
                         break;
                     default:
-                        Console.WriteLine("Worng input !!");
-                        break;    
+                        Console.WriteLine("Wrong input !!");
+                        break;
                 }
             }
         }
