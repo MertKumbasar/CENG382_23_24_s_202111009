@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 // States for you to try
@@ -25,7 +21,7 @@ public class States
         Console.WriteLine($"Name: {name}");
         Console.WriteLine($"Room Number: {roomNumber}");
         Console.WriteLine($"Enterance Day: {enterDay}");
-        Console.WriteLine($"Exit Day: {enterHour}\n");
+        Console.WriteLine($"Enterance Time: {enterHour}\n");
     }
 
 }
@@ -36,25 +32,13 @@ public class RoomData
     public Room[] Rooms { get; set; }
 }
 
-public class Room
-{
-    [JsonPropertyName("roomId")]
-    public string RoomId { get; set; }
 
-    [JsonPropertyName("roomName")]
-    public string RoomName { get; set; }
 
-    [JsonPropertyName("capacity")]
-    public int Capacity { get; set; }
-}
 
-public class Reservation
-{
-    public Room Room { get; set; }
-    public string Day { get; set; }
-    public DateTime Time { get; set; }
-    public string ReserverName { get; set; }
-}
+
+
+
+
 
 public class ReservationHandler
 {
@@ -95,6 +79,18 @@ public class ReservationHandler
 
         reservations.Add((enterTime, reserverName));
         Console.WriteLine($"Reservation added for room {roomNumber} on {day} at {enterTime:hh:mm tt}.");
+    }
+
+    public void DeleteReservationByName(string reserverName)
+    {
+        foreach (var dayReservations in weeklyReservations.Values)
+        {
+            foreach (var roomReservations in dayReservations.Values)
+            {
+                roomReservations.RemoveAll(reservation => reservation.Item2 == reserverName);
+            }
+        }
+        Console.WriteLine($"All reservations for guest {reserverName} deleted.");
     }
 
     public void PrintWeeklySchedule()
@@ -213,6 +209,7 @@ class Program
                     case 2:
                         Console.Write("\nEnter guest name to delete all reservations: ");
                         string reserverNameToDelete = Console.ReadLine();
+                        handler.DeleteReservationByName(reserverNameToDelete);
                         break;
 
                     case 3:
