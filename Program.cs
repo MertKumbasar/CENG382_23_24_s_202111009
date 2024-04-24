@@ -1,132 +1,14 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-// States for you to try
-public class States
-{
-    public string name { get; set; }
-    public string roomNumber { get; set; }
-    public string enterDay { get; set; }
-    public string enterHour { get; set; }
-
-    public States(string Name, string RoomNumber, string Enter, string Exit)
-    {
-        name = Name;
-        roomNumber = RoomNumber;
-        enterDay = Enter;
-        enterHour = Exit;
-    }
-    public void displayProperty()
-    {
-        Console.WriteLine($"Name: {name}");
-        Console.WriteLine($"Room Number: {roomNumber}");
-        Console.WriteLine($"Enterance Day: {enterDay}");
-        Console.WriteLine($"Enterance Time: {enterHour}\n");
-    }
-
-}
-
-public class RoomData
-{
-    [JsonPropertyName("Room")]
-    public Room[] Rooms { get; set; }
-}
+// In Lab 6, my code didn't satisfy the Single Responsibility Principle and Dependency Injection Principles. 
+// The reason behind that is a class needs more classes to accomplish its tasks. Additional classes had more than one single task, which is not compatible with 
+// single responsibility.
 
 
 
 
 
-
-
-
-
-public class ReservationHandler
-{
-    private Dictionary<string, Dictionary<Room, List<(DateTime, string)>>> weeklyReservations;
-    private TimeSpan breakTime = TimeSpan.FromMinutes(40);
-
-    public ReservationHandler(RoomData roomData)
-    {
-        weeklyReservations = new Dictionary<string, Dictionary<Room, List<(DateTime, string)>>>();
-
-        foreach (DayOfWeek day in Enum.GetValues(typeof(DayOfWeek)))
-        {
-            weeklyReservations[day.ToString()] = new Dictionary<Room, List<(DateTime, string)>>();
-        }
-
-        foreach (Room room in roomData.Rooms)
-        {
-            for (int i = 0; i < 7; i++)
-            {
-                DayOfWeek day = (DayOfWeek)(((int)DayOfWeek.Monday + i) % 7);
-                weeklyReservations[day.ToString()][room] = new List<(DateTime, string)>();
-            }
-        }
-    }
-
-    public void AddReservation(string day, string roomNumber, string reserverName, DateTime enterTime)
-    {
-        Room room = Array.Find(weeklyReservations[day].Keys.ToArray(), r => r.RoomId == roomNumber);
-        List<(DateTime, string)> reservations = weeklyReservations[day][room];
-
-        DateTime endTime = enterTime.AddMinutes(40); 
-
-        if (reservations.Any(reservation => enterTime < reservation.Item1.Add(breakTime) && endTime > reservation.Item1))
-        {
-            Console.WriteLine("There is a reservation conflict. Please choose another time.");
-            return;
-        }
-
-        reservations.Add((enterTime, reserverName));
-        Console.WriteLine($"Reservation added for room {roomNumber} on {day} at {enterTime:hh:mm tt}.");
-    }
-
-    public void DeleteReservationByName(string reserverName)
-    {
-        foreach (var dayReservations in weeklyReservations.Values)
-        {
-            foreach (var roomReservations in dayReservations.Values)
-            {
-                roomReservations.RemoveAll(reservation => reservation.Item2 == reserverName);
-            }
-        }
-        Console.WriteLine($"All reservations for guest {reserverName} deleted.");
-    }
-
-    public void PrintWeeklySchedule()
-    {
-        Console.WriteLine("Weekly Schedule:");
-
-        
-        for (int i = 0; i < 7; i++)
-        {
-            DayOfWeek dayOfWeek = (DayOfWeek)(((int)DayOfWeek.Monday + i) % 7);
-            string dayOfWeekString = dayOfWeek.ToString();
-
-            Console.WriteLine($"Day: {dayOfWeekString}");
-
-            foreach (var roomKvp in weeklyReservations[dayOfWeekString])
-            {
-                Room room = roomKvp.Key;
-                List<(DateTime, string)> reservations = roomKvp.Value;
-
-                if (reservations.Count == 0)
-                {
-                    continue;
-                }
-
-                Console.WriteLine($"Room {room.RoomId} ({room.RoomName}):");
-
-                foreach ((DateTime time, string reserverName) in reservations)
-                {
-                    Console.WriteLine($"  {time:hh:mm tt} - {reserverName}");
-                }
-            }
-
-            Console.WriteLine();
-        }
-    }
-}
 
 class Program
 {
@@ -140,16 +22,11 @@ class Program
             States state2 = new States("Sila", "001", "Monday", "11:20");
             States state3 = new States("Zeynep", "002", "Monday", "11:20");
             States state4 = new States("Tuna", "003", "Friday", "11:00");
+            States state5 = new States("Ibrahim", "006", "Sunday", "15:00");
             States selectedState = null;
 
-            string jsonString = File.ReadAllText(jsonFilePath);
-
-            var options = new JsonSerializerOptions
-            {
-                NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.WriteAsString
-            };
-
-            var roomData = JsonSerializer.Deserialize<RoomData>(jsonString, options);
+            RoomHandler roomHandler = new RoomHandler(jsonFilePath);
+            var roomData = roomHandler.GetRooms();
 
             ReservationHandler handler = new ReservationHandler(roomData);
 
@@ -175,6 +52,8 @@ class Program
                         state3.displayProperty();
                         Console.WriteLine("Select state 4:");
                         state4.displayProperty();
+                        Console.WriteLine("Select state 5:");
+                        state5.displayProperty();
 
                         int selection2 = int.Parse(Console.ReadLine());
 
@@ -192,6 +71,9 @@ class Program
                             case 4:
                                 selectedState = state4;
                                 break;
+                            case 5:
+                                selectedState = state5;
+                                break;    
                             default:
                                 Console.WriteLine("Invalid input !!");
                                 break;

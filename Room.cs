@@ -1,13 +1,20 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 public record Room
 {
     [JsonPropertyName("roomId")]
-    public string ?RoomId { get; init; }
+    public string RoomId { get; set; }
 
     [JsonPropertyName("roomName")]
-    public string ?RoomName { get; init; }
+    public string RoomName { get; set; }
 
     [JsonPropertyName("capacity")]
-    public int Capacity { get; init; }
+    public int Capacity { get; set; }
+}
+
+public class RoomData
+{
+    [JsonPropertyName("Room")]
+    public Room[] Rooms { get; set; }
 }

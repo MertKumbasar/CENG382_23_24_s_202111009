@@ -1,7 +1,6 @@
-
-public record LogRecord
-{
-    public DateTime Timestamp { get; init; }
-    public string ?ReserverName { get; init; }
-    public string ?RoomName { get; init; }
-}
+public record LogRecord(
+    DateTime Timestamp,
+    string ReserverName,
+    string RoomName,
+    string Action
+);

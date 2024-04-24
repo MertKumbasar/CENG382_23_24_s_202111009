@@ -1,18 +1,30 @@
-
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
 
 public class FileLogger : ILogger
 {
-    private readonly string _filePath;
+    private readonly string logFilePath;
 
-    public FileLogger(string filePath)
+    public FileLogger(string logFilePath)
     {
-        _filePath = filePath;
+        this.logFilePath = logFilePath;
     }
 
     public void Log(LogRecord log)
     {
-        var jsonString = JsonSerializer.Serialize(log);
-        File.AppendAllText(_filePath, jsonString + Environment.NewLine);
+        var logs = new List<LogRecord>();
+
+        if (File.Exists(logFilePath))
+        {
+            var jsonString = File.ReadAllText(logFilePath);
+            logs = JsonSerializer.Deserialize<List<LogRecord>>(jsonString) ?? new List<LogRecord>();
+        }
+
+        logs.Add(log);
+
+        var updatedJsonString = JsonSerializer.Serialize(logs, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(logFilePath, updatedJsonString);
     }
 }
