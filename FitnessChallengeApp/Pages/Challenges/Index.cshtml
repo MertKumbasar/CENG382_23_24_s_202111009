@@ -1,0 +1,38 @@
+@page
+@model FitnessChallengeApp.Pages.Challenges.IndexModel
+@{
+    ViewData["Title"] = "Challenges";
+}
+
+<h1>Challenges</h1>
+
+<form method="get">
+    <div class="form-group">
+        <input type="text" name="searchString" class="form-control" placeholder="Search challenges..." value="@Model.SearchString" />
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Category</th>
+            <th>Period</th>
+            <th>Difficulty Level</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var challenge in Model.Challenges)
+        {
+            <tr>
+                <td>@challenge.Category</td>
+                <td>@challenge.Period</td>
+                <td>@challenge.DifficultyLevel</td>
+                <td>
+                    <a asp-page="/Challenges/Details" asp-route-id="@challenge.Id" class="btn btn-primary">View</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

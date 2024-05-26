@@ -1,0 +1,39 @@
+@page
+@model FitnessChallengeApp.Pages.Challenges.DetailsModel
+@{
+    ViewData["Title"] = "Challenge Details";
+}
+
+<h1>@Model.Challenge.Category</h1>
+<p>Period: @Model.Challenge.Period</p>
+<p>Difficulty Level: @Model.Challenge.DifficultyLevel</p>
+<p>Instructions: @Model.Challenge.Instructions</p>
+
+<h2>Comments</h2>
+@foreach (var comment in Model.Comments)
+{
+    <div>
+        <p>@comment.Content</p>
+        <p>Rating: @comment.Rating</p>
+        <p>By: @comment.User.UserName on @comment.CreatedAt</p>
+    </div>
+}
+
+<h2>Add a Comment</h2>
+<form method="post">
+    <textarea asp-for="NewComment.Content" class="form-control"></textarea>
+    <span asp-validation-for="NewComment.Content" class="text-danger"></span>
+    <select asp-for="NewComment.Rating" class="form-control">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+    </select>
+    <span asp-validation-for="NewComment.Rating" class="text-danger"></span>
+    <button type="submit" class="btn btn-primary">Add Comment</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

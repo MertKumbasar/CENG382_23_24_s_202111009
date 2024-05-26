@@ -1,0 +1,38 @@
+﻿@page
+@model FitnessChallengeApp.Pages.IndexModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="content text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Welcome to the Fitness Challenge App!</p>
+</div>
+
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        background-image: url('/images/background.jpg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-position: center;
+        color: white;
+    }
+    .content {
+        padding: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    footer {
+        height: 100px; /* Adjust this height as needed */
+        background-color: #f8f9fa;
+        text-align: center;
+        padding: 20px;
+        position: relative;
+        bottom: 0;
+        width: 100%;
+    }
+</style>
