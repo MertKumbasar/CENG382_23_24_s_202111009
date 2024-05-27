@@ -18,6 +18,14 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = C:\Users\kumba\Desktop\CENG382_23_24_s_202111009\RazorPages
 build_property._RazorSourceGeneratorDebug = 
 
+[C:/Users/kumba/Desktop/CENG382_23_24_s_202111009/RazorPages/Pages/CreateRoom.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ3JlYXRlUm9vbS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/kumba/Desktop/CENG382_23_24_s_202111009/RazorPages/Pages/DisplayRoom.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGlzcGxheVJvb20uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/kumba/Desktop/CENG382_23_24_s_202111009/RazorPages/Pages/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXJyb3IuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
