@@ -1,0 +1,44 @@
+﻿@page
+@model MyApp.Namespace.CreateReservationModel
+@{
+    ViewData["Title"] = "Create Reservation";
+}
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<h1>Create Reservation</h1>
+
+<form method="post">
+    <div class="form-group">
+        <label for="dateTime">Date and Time:</label>
+        <input id="dateTime" type="datetime-local" asp-for="Reservation.DateTime" required />
+        <script>
+            flatpickr("#dateTime", {
+                enableTime: true,
+                noCalendar: false,
+                dateFormat: "Y-m-d H:i",
+                minDate: "today",
+                minuteIncrement: 60, 
+                time_24hr: true 
+            });
+        </script> 
+    </div>
+
+    <div class="form-group">
+        <label for="room">Room:</label>
+        <div class="select">
+            <select id="room" asp-for="Reservation.RoomId" asp-items="@(new SelectList(Model.Rooms, "Id", "RoomName"))"
+                required>
+                <option value="">Select a room</option>
+            </select>
+        </div>
+    </div>
+
+    <button type="submit">Create Reservation</button>
+
+</form>
+
+<a asp-page="/DisplayReservation">Display Reservation</a>
