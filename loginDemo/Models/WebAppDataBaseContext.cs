@@ -19,6 +19,8 @@ public partial class WebAppDataBaseContext : DbContext
 
     public virtual DbSet<Room> Rooms { get; set; }
 
+    public virtual DbSet<logger> loggers{ get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         var builder = WebApplication.CreateBuilder();

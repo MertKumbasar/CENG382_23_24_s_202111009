@@ -17,7 +17,7 @@ namespace MyApp.Namespace
         }
 
         [BindProperty]
-        public Room NewRoom { get; set; } = new Room(); // Initialize the Room property
+        public Room NewRoom { get; set; } = new Room(); 
 
         public void OnGet(){
         
@@ -30,8 +30,25 @@ namespace MyApp.Namespace
                 return Page();
             }
 
+            if (_context.Rooms.Any(r => r.RoomName == NewRoom.RoomName))
+            {
+                ModelState.AddModelError("NewRoom.RoomName", "A room with this name already exists.");
+                return Page();
+            }
+
             _context.Rooms.Add(NewRoom);
             _context.SaveChanges();
+
+            var log = new logger
+            {
+                Timestamp = DateTime.Now,
+                RoomId = NewRoom.Id,
+                UserId = User.Identity.Name
+            };
+
+            _context.loggers.Add(log);
+            _context.SaveChanges();
+
             return RedirectToPage("/DisplayRoom");
         }
     }

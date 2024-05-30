@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using loginDemo.Models;
 
@@ -11,9 +12,11 @@ using loginDemo.Models;
 namespace loginDemo.Migrations
 {
     [DbContext(typeof(WebAppDataBaseContext))]
-    partial class WebAppDataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240530214853_loggerAdd")]
+    partial class loggerAdd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
